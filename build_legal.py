@@ -47,7 +47,7 @@ TEMPLATE = """<!doctype html>
 <main class="legal">
 {body}
 </main>
-<footer><div class="row"><div>© 2026 ThinkCode · Numina</div>
+<footer><div class="row"><div>© 2026 ByteXio · Numina</div>
 <div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="mailto:support@bytexio.com">Support</a></div></div></footer>
 </div></body></html>
 """
