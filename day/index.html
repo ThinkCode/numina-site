@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today's Math — Numina</title>
+<meta name="description" content="Five problems. The same five for everyone. Can you beat this result?">
+<meta property="og:title" content="Numina · Today's Math">
+<meta property="og:description" content="Five problems. The same five for everyone, everywhere.">
+<meta property="og:image" content="https://numina.bytexio.com/img/iphone-01_home.png">
+<meta name="theme-color" content="#0B1026">
+<link rel="icon" href="/img/icon.png">
+<link rel="stylesheet" href="/style.css">
+<style>
+  .challenge { min-height: 80vh; display: grid; place-items: center; text-align: center; }
+  .dots { display: flex; gap: 12px; justify-content: center; margin: 22px 0 8px; }
+  .dots i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(155,160,184,.5); }
+  .card { max-width: 440px; padding: 34px 28px; border-radius: var(--radius-lg);
+          background: rgba(21,27,56,.75); border: 1px solid rgba(255,255,255,.08); }
+  .small { font-size: 13px; color: var(--starlight-dim); margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="sky"></div><div class="stars"></div>
+<main class="wrap challenge">
+  <div class="card">
+    <div class="eyebrow" id="day">Today's Math</div>
+    <h1 style="font-size:40px;margin:10px 0 6px">Can you do<br><span class="glow">these five?</span></h1>
+    <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="lede" style="margin:10px auto 24px">The same five problems for everyone, everywhere. A friend just played them.</p>
+    <div class="cta-row" style="justify-content:center">
+      <a class="cta" id="open" href="#">Open in Numina</a>
+      <a class="cta ghost" id="store" href="https://apps.apple.com/app/id6811761967">Get Numina</a>
+    </div>
+    <p class="small">Free to play. No accounts, no tracking.</p>
+  </div>
+</main>
+<script>
+  // Day number from ?d=, clamped to a positive integer — never echoed as HTML.
+  var q = new URLSearchParams(location.search);
+  var d = parseInt(q.get("d") || "", 10);
+  var v = parseInt(q.get("v") || "1", 10) || 1;
+  if (!isFinite(d) || d < 1 || d > 100000) d = null;
+  if (d) document.getElementById("day").textContent = "Day " + d + " · Today's Math";
+  var deep = "numina://daily" + (d ? "?day=" + d + "&v=" + v : "");
+  document.getElementById("open").setAttribute("href", deep);
+</script>
+</body>
+</html>
