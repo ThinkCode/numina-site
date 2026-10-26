@@ -108,6 +108,24 @@ h2 { font-size: clamp(28px, 4vw, 42px); font-weight: 900; letter-spacing: -.5px;
 .tier li::before { content: "✦ "; color: var(--aurora); }
 .tier.complete li::before { color: var(--ember); }
 
+/* "New" pill in the hero */
+.pill { display: inline-flex; gap: 10px; align-items: center; padding: 7px 14px 7px 7px; margin-bottom: 18px; border-radius: 999px;
+  background: rgba(139,124,246,.14); border: 1px solid rgba(139,124,246,.35); color: var(--starlight); font-size: 14px; font-weight: 600; }
+.pill b { background: var(--violet); color: var(--night); padding: 3px 9px; border-radius: 999px; font-size: 12px; letter-spacing: .5px; }
+.pill:hover { text-decoration: none; border-color: rgba(139,124,246,.6); }
+
+/* Three phones in a row (Duel) */
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 10px; }
+.trio figure { margin: 0; text-align: center; }
+.trio img { width: 100%; max-width: 300px; margin: 0 auto; border-radius: 34px;
+  box-shadow: 0 30px 70px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.07), 0 0 60px rgba(139,124,246,.18); }
+.trio figcaption { margin-top: 14px; color: var(--starlight-dim); font-size: 15px; }
+
+/* Accessibility chips */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.chips span { padding: 9px 14px; border-radius: 999px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
+  color: var(--starlight); font-size: 14px; font-weight: 600; }
+
 /* Privacy band */
 .band { text-align: center; padding: 60px 24px; border-radius: var(--radius-lg);
   background: linear-gradient(160deg, rgba(94,234,212,.10), rgba(139,124,246,.14)); border: 1px solid rgba(255,255,255,.08); }
@@ -126,6 +144,8 @@ footer a { margin-right: 18px; }
 
 @media (max-width: 820px) {
   .hero, .showcase, .tiers { grid-template-columns: 1fr; }
+  .trio { grid-template-columns: 1fr; }
+  .trio img { max-width: 260px; }
   .showcase.flip > :first-child { order: 0; }
   nav ul { display: none; }
   .hero { padding-top: 20px; }
