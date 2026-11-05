@@ -36,18 +36,17 @@ TEMPLATE = """<!doctype html>
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} — Numina</title>
-<meta name="theme-color" content="#0B1026">
+<meta name="theme-color" content="#070B16">
 <link rel="icon" href="img/icon.png"><link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="sky"></div><div class="stars"></div>
 <div class="wrap">
 <nav><a class="brand" href="/"><img src="img/icon.png" alt=""> Numina</a>
 <ul><li><a href="privacy.html">Privacy</a></li><li><a href="terms.html">Terms</a></li><li><a href="mailto:support@bytexio.com">Support</a></li></ul></nav>
 <main class="legal">
 {body}
 </main>
-<footer><div class="row"><div>© 2026 ByteXio · Numina</div>
+<footer><div class="row"><div>© 2026 ByteXio LLC</div>
 <div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="mailto:support@bytexio.com">Support</a></div></div></footer>
 </div></body></html>
 """

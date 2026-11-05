@@ -1,414 +1,179 @@
-/**
- * Numina Web Experience Engine
- * - Dynamic Aurora Sky Canvas
- * - Playable Hero Math Puzzle with Web Audio synthesizers & particle bursts
- * - Interactive Celestial Theme Morpher
- * - Duel Beam Bezier Curve Visualizer
- */
-
-// ==========================================
-// 1. THEMES CONFIGURATION
-// ==========================================
-const THEMES = {
-  aurora: {
-    name: "Aurora Sky",
-    desc: "A glowing teal veil over an Arctic night sky. The iconic Numina look.",
-    primary: "#5EEAD4",
-    secondary: "#38BDF8",
-    night: "#070B16",
-    rgb: [94, 234, 212]
-  },
-  ember: {
-    name: "Ember Dusk",
-    desc: "Warm volcanic embers drifting across a terracotta twilight.",
-    primary: "#E8A06A",
-    secondary: "#FB7185",
-    night: "#120C0E",
-    rgb: [232, 160, 106]
-  },
-  violet: {
-    name: "Deep Violet",
-    desc: "A velvet celestial abyss lit by ultraviolet starlight and lavender nebulae.",
-    primary: "#B7A8E8",
-    secondary: "#818CF8",
-    night: "#0C0A16",
-    rgb: [183, 168, 232]
-  },
-  starlight: {
-    name: "Starlight Monochrome",
-    desc: "Pure luminescent monochrome inspired by minimal observatory gauges.",
-    primary: "#E8E6F0",
-    secondary: "#94A3B8",
-    night: "#0A0A0F",
-    rgb: [232, 230, 240]
-  },
-  daylight: {
-    name: "Daylight Linen",
-    desc: "Warm parchment, terra cotta, and soft amber for morning clarity in bright sun.",
-    primary: "#B5694A",
-    secondary: "#D97706",
-    night: "#F6F1E7",
-    rgb: [181, 105, 74]
-  }
+// Where the download buttons go. When Numina is live, set appStore to its
+// App Store URL: every button and the note under the last one update together.
+const LINKS = {
+  appStore: null,
+  beta: "https://testflight.apple.com/join/gk9ESn7c",
 };
 
-let currentTheme = 'aurora';
-
-// ==========================================
-// 2. AUDIO SYNTHESIZER (WEB AUDIO API)
-// ==========================================
-class SoundFX {
-  constructor() {
-    this.ctx = null;
-  }
-
-  init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) {
-        this.ctx = new AudioContext();
-      }
-    }
-    if (this.ctx && this.ctx.state === 'suspended') {
-      this.ctx.resume();
-    }
-  }
-
-  playSolveTone() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      // Dual harmonic chime
-      const osc1 = this.ctx.createOscillator();
-      const osc2 = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc1.type = 'sine';
-      osc2.type = 'triangle';
-
-      osc1.frequency.setValueAtTime(587.33, now); // D5
-      osc1.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
-      osc1.frequency.exponentialRampToValueAtTime(1174.66, now + 0.3); // D6
-
-      osc2.frequency.setValueAtTime(293.66, now); // D4
-      osc2.frequency.exponentialRampToValueAtTime(440, now + 0.15); // A4
-      osc2.frequency.exponentialRampToValueAtTime(587.33, now + 0.3); // D5
-
-      gain.gain.setValueAtTime(0.2, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc1.start(now);
-      osc2.start(now);
-      osc1.stop(now + 0.6);
-      osc2.stop(now + 0.6);
-    } catch (e) {
-      // Audio autoplay policy fallback
-    }
-  }
-
-  playMissTone() {
-    try {
-      this.init();
-      if (!this.ctx) return;
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
-
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.25);
-    } catch (e) {}
-  }
+function applyLinks() {
+  const live = Boolean(LINKS.appStore);
+  document.querySelectorAll("[data-get]").forEach((a) => {
+    a.href = live ? LINKS.appStore : LINKS.beta;
+  });
+  const note = document.querySelector("[data-get-note]");
+  if (live && note) note.textContent = "Free on the App Store. Needs iOS 18 or later.";
 }
 
-const sfx = new SoundFX();
-
-// ==========================================
-// 3. AURORA DRIFTING CANVAS
-// ==========================================
-class AuroraCanvas {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext('2d');
-    this.blobs = [];
-    this.resize();
-    this.initBlobs();
-    window.addEventListener('resize', () => this.resize());
-    this.animate();
-  }
-
-  resize() {
-    this.width = this.canvas.width = window.innerWidth;
-    this.height = this.canvas.height = window.innerHeight;
-  }
-
-  initBlobs() {
-    this.blobs = [
-      { x: this.width * 0.25, y: this.height * 0.3, vx: 0.3, vy: 0.2, r: Math.min(this.width, this.height) * 0.45 },
-      { x: this.width * 0.75, y: this.height * 0.4, vx: -0.25, vy: 0.35, r: Math.min(this.width, this.height) * 0.5 },
-      { x: this.width * 0.5, y: this.height * 0.75, vx: 0.2, vy: -0.3, r: Math.min(this.width, this.height) * 0.4 }
-    ];
-  }
-
-  animate() {
-    const rgb = THEMES[currentTheme].rgb;
-    this.ctx.clearRect(0, 0, this.width, this.height);
-
-    for (let b of this.blobs) {
-      b.x += b.vx;
-      b.y += b.vy;
-
-      if (b.x - b.r < 0 || b.x + b.r > this.width) b.vx *= -1;
-      if (b.y - b.r < 0 || b.y + b.r > this.height) b.vy *= -1;
-
-      const gradient = this.ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-      gradient.addColorStop(0, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.16)`);
-      gradient.addColorStop(0.5, `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.05)`);
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-      this.ctx.fillStyle = gradient;
-      this.ctx.beginPath();
-      this.ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-      this.ctx.fill();
-    }
-
-    requestAnimationFrame(() => this.animate());
-  }
+// The same day number the app uses: day 1 is 1 January 2026 in the player's
+// own time zone, so a day here is the same day as in Numina.
+function dayNumber(now = new Date()) {
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.floor((today - Date.UTC(2026, 0, 1)) / 86400000) + 1;
 }
 
-// ==========================================
-// 4. PLAYABLE HERO PUZZLE SIMULATOR
-// ==========================================
-const PUZZLE_LEVELS = [
-  {
-    target: 42,
-    num1: 6,
-    operator: '×',
-    answer: 7,
-    options: [6, 7, 8, 9, 12, 14]
-  },
-  {
-    target: 81,
-    num1: 95,
-    operator: '−',
-    answer: 14,
-    options: [12, 14, 16, 24, 8, 15]
-  },
-  {
-    target: 64,
-    num1: 16,
-    operator: '×',
-    answer: 4,
-    options: [3, 4, 5, 8, 2, 6]
+function untilMidnight(now = new Date()) {
+  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const minutes = Math.max(1, Math.ceil((next - now) / 60000));
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h ? `${h}h ${m}m` : `${m}m`;
+}
+
+function startCountdown() {
+  const el = document.getElementById("countdown");
+  if (!el) return;
+  const tick = () => { el.textContent = untilMidnight(); };
+  tick();
+  setInterval(tick, 30000);
+}
+
+function remember(key, value) {
+  try {
+    if (value === undefined) return localStorage.getItem(key);
+    localStorage.setItem(key, value);
+  } catch { return null; }
+  return null;
+}
+
+async function startPuzzle() {
+  const form = document.getElementById("puzzle");
+  if (!form) return;
+  const meta = document.getElementById("puzzle-meta");
+  const problem = document.getElementById("problem");
+  const row = document.getElementById("answer-row");
+  const input = document.getElementById("answer");
+  const choices = document.getElementById("choices");
+  const feedback = document.getElementById("feedback");
+  const after = document.getElementById("after");
+  const firstDot = document.querySelector("#dots i");
+
+  let today;
+  const day = dayNumber();
+  try {
+    const res = await fetch("/daily.json");
+    const data = await res.json();
+    today = data.days[day - data.firstDay];
+  } catch { today = null; }
+
+  if (!today) {
+    // Past the exported days, or offline: a sample, labelled as one.
+    meta.textContent = "A sample problem";
+    document.querySelector(".hero h1").textContent = "Five problems a day. Everyone gets the same five.";
+    today = ["5, 16, 12, 23, ?", "19", "Patterns"];
+  } else {
+    meta.textContent = `Day ${day} · ${today[2]} · Problem 1 of 5`;
   }
-];
 
-class PuzzleSimulator {
-  constructor() {
-    this.currentLevel = 0;
-    this.targetEl = document.getElementById('puzzle-target');
-    this.eqEl = document.getElementById('puzzle-eq');
-    this.choicesEl = document.getElementById('puzzle-choices');
-    this.feedbackEl = document.getElementById('puzzle-feedback');
-    this.dots = document.querySelectorAll('.puzzle-dot');
-    this.render();
-  }
+  const [prompt, answer, , options] = today;
+  problem.textContent = prompt.replace(/\s+/g, " ");
+  problem.classList.toggle("long", prompt.length > 14);
 
-  render() {
-    const level = PUZZLE_LEVELS[this.currentLevel];
-    if (!level) {
-      this.showWinState();
-      return;
-    }
+  let misses = 0;
+  const solved = () => {
+    firstDot.classList.add("lit");
+    row.hidden = true;
+    choices.hidden = true;
+    feedback.textContent = "That's it. One star lit. The other four are in the app.";
+    after.hidden = false;
+    remember("numina.solved", String(day));
+  };
+  const check = (value) => {
+    if (value.trim() === answer) { solved(); return; }
+    misses += 1;
+    feedback.textContent = misses < 3
+      ? "Not that one. Try again."
+      : "This one's a stretch. The app has a hint for it.";
+    if (misses >= 3) after.hidden = false;
+    form.classList.remove("miss");
+    void form.offsetWidth;
+    form.classList.add("miss");
+  };
 
-    this.targetEl.innerText = level.target;
-    this.eqEl.innerHTML = `${level.num1} ${level.operator} <span class="placeholder">?</span> = ${level.target}`;
-    this.choicesEl.innerHTML = '';
-    this.feedbackEl.innerText = 'Tap the missing number';
-    this.feedbackEl.className = 'puzzle-feedback';
-
-    // Update dots
-    this.dots.forEach((dot, idx) => {
-      dot.className = 'puzzle-dot';
-      if (idx < this.currentLevel) dot.classList.add('completed');
-      if (idx === this.currentLevel) dot.classList.add('active');
-    });
-
-    level.options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'choice-btn';
-      btn.innerText = opt;
-      btn.addEventListener('click', () => this.handlePick(opt, level.answer));
-      this.choicesEl.appendChild(btn);
+  if (options) {
+    row.hidden = true;
+    choices.hidden = false;
+    options.forEach((text) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = text;
+      b.addEventListener("click", () => check(text));
+      choices.append(b);
     });
   }
 
-  handlePick(val, correct) {
-    if (val === correct) {
-      sfx.playSolveTone();
-      this.feedbackEl.innerText = 'Spot on! Star awarded ★';
-      this.feedbackEl.className = 'puzzle-feedback success';
-      this.currentLevel++;
-      setTimeout(() => {
-        this.render();
-      }, 700);
-    } else {
-      sfx.playMissTone();
-      this.feedbackEl.innerText = 'Try again! Mind the mental leaps.';
-      this.feedbackEl.className = 'puzzle-feedback shake';
-    }
-  }
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (input.value.trim()) check(input.value);
+    input.select();
+  });
 
-  showWinState() {
-    this.targetEl.innerText = '3 / 3 ★';
-    this.eqEl.innerHTML = '<span style="color:#34D399; font-weight:700;">DAILY RITUAL COMPLETE!</span>';
-    this.choicesEl.innerHTML = `
-      <div style="grid-column: span 3; padding: 16px 0; text-align: center;">
-        <p style="font-size:0.95rem; color:var(--text-secondary); margin-bottom:12px;">Share your daily result:</p>
-        <div style="font-family:var(--font-mono); background:rgba(0,0,0,0.3); padding:10px; border-radius:12px; margin-bottom:16px;">
-          Numina Day 244 3/3 🟩🟩🟩
-        </div>
-        <button id="reset-puzzle-btn" class="choice-btn" style="width:100%; font-size:1rem; padding:12px;">Play Again</button>
-      </div>
-    `;
-    this.dots.forEach(dot => dot.className = 'puzzle-dot completed');
-    this.feedbackEl.innerText = 'Ready for tomorrow’s math challenge!';
-    
-    document.getElementById('reset-puzzle-btn').addEventListener('click', () => {
-      this.currentLevel = 0;
-      this.render();
-    });
+  if (remember("numina.solved") === String(day)) {
+    solved();
+    feedback.textContent = "You solved today's first. The other four are in the app.";
+    // A sequence ends in "?", so show it finished. Other forms stay as asked.
+    problem.textContent = problem.textContent.replace(/,\s*\?$/, `, ${answer}`);
   }
 }
 
-// ==========================================
-// 5. DUEL BEAM VISUALIZER (S-CURVE CANVAS)
-// ==========================================
-class DuelBeamCanvas {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
-    if (!this.canvas) return;
-    this.ctx = this.canvas.getContext('2d');
-    this.offset = 0;
-    this.resize();
-    window.addEventListener('resize', () => this.resize());
-    this.animate();
-  }
-
-  resize() {
-    const parent = this.canvas.parentElement;
-    this.width = this.canvas.width = parent.clientWidth;
-    this.height = this.canvas.height = parent.clientHeight;
-  }
-
-  animate() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-
-    // Only draw beam if screen is wide enough (desktop/tablet grid)
-    if (this.width > 700) {
-      const leftX = this.width * 0.28;
-      const leftY = this.height * 0.45;
-      const rightX = this.width * 0.72;
-      const rightY = this.height * 0.45;
-      const midX = this.width * 0.5;
-      const midY = this.height * 0.45;
-
-      const rgb = THEMES[currentTheme].rgb;
-
-      // Glow line
-      this.ctx.beginPath();
-      this.ctx.moveTo(leftX, leftY);
-      this.ctx.bezierCurveTo(midX, leftY - 70, midX, rightY + 70, rightX, rightY);
-      this.ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.25)`;
-      this.ctx.lineWidth = 6;
-      this.ctx.stroke();
-
-      // Energy laser line
-      this.ctx.beginPath();
-      this.ctx.moveTo(leftX, leftY);
-      this.ctx.bezierCurveTo(midX, leftY - 70, midX, rightY + 70, rightX, rightY);
-      this.ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.8)`;
-      this.ctx.lineWidth = 2.5;
-      this.ctx.setLineDash([12, 18]);
-      this.ctx.lineDashOffset = -this.offset;
-      this.ctx.stroke();
-      this.ctx.setLineDash([]);
-
-      this.offset += 1.2;
+// Drawn once, not animated: a still sky costs nothing to keep on screen.
+function drawStars() {
+  const canvas = document.getElementById("stars");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const paint = () => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = window.innerWidth;
+    const h = Math.min(window.innerHeight * 1.1, 1000);
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.height = `${h}px`;
+    ctx.scale(dpr, dpr);
+    const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink").trim();
+    let seed = 309;
+    const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    ctx.fillStyle = ink;
+    for (let i = 0; i < w / 7; i += 1) {
+      ctx.globalAlpha = 0.12 + rand() * 0.5;
+      ctx.beginPath();
+      ctx.arc(rand() * w, rand() * h, 0.35 + rand() * 0.8, 0, Math.PI * 2);
+      ctx.fill();
     }
-
-    requestAnimationFrame(() => this.animate());
-  }
+  };
+  paint();
+  let wait;
+  window.addEventListener("resize", () => { clearTimeout(wait); wait = setTimeout(paint, 200); });
+  document.addEventListener("skychange", paint);
 }
 
-// ==========================================
-// 6. THEME MORPHER ENGINE
-// ==========================================
-function initThemeMorpher() {
-  const pills = document.querySelectorAll('.theme-pill');
-  const metaTitle = document.getElementById('theme-name');
-  const metaDesc = document.getElementById('theme-desc');
-  const previewImg = document.getElementById('theme-preview-img');
-
-  pills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      const themeKey = pill.getAttribute('data-theme-key');
-      if (!THEMES[themeKey]) return;
-
-      currentTheme = themeKey;
-
-      // Update active pill
-      pills.forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-
-      // Update root data-theme
-      if (themeKey === 'aurora') {
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        document.documentElement.setAttribute('data-theme', themeKey);
-      }
-
-      // Update info
-      if (metaTitle) metaTitle.innerText = THEMES[themeKey].name;
-      if (metaDesc) metaDesc.innerText = THEMES[themeKey].desc;
-
-      // Update preview screenshot if relevant
-      if (previewImg) {
-        if (themeKey === 'violet') {
-          previewImg.src = 'img/iphone-06_deepsky.png';
-        } else if (themeKey === 'starlight') {
-          previewImg.src = 'img/iphone-07_observatory.png';
-        } else if (themeKey === 'ember') {
-          previewImg.src = 'img/iphone-03_tour_sky.png';
-        } else {
-          previewImg.src = 'img/skies.png';
-        }
-      }
+function startSkies() {
+  const shot = document.getElementById("sky-shot");
+  if (!shot) return;
+  const buttons = document.querySelectorAll("[data-sky]");
+  const names = { aurora: "Aurora", emberDusk: "Ember Dusk", deepViolet: "Deep Violet", starlightMono: "Starlight", daylight: "Daylight" };
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const sky = button.dataset.sky;
+      document.documentElement.dataset.sky = sky;
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+      shot.src = sky === "aurora" ? "/img/app/home-played.webp" : `/img/app/sky-${sky}.webp`;
+      shot.alt = `Numina's Home screen in the ${names[sky]} sky.`;
+      document.dispatchEvent(new Event("skychange"));
     });
   });
 }
 
-// ==========================================
-// INITIALIZATION
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-  new AuroraCanvas('aurora-canvas');
-  new PuzzleSimulator();
-  new DuelBeamCanvas('duel-beam-canvas');
-  initThemeMorpher();
-});
+applyLinks();
+startCountdown();
+startPuzzle();
+drawStars();
+startSkies();

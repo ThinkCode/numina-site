@@ -7,33 +7,23 @@
 <meta name="description" content="Five problems. The same five for everyone. Can you beat this result?">
 <meta property="og:title" content="Numina · Today's Math">
 <meta property="og:description" content="Five problems. The same five for everyone, everywhere.">
-<meta property="og:image" content="https://numina.bytexio.com/img/iphone-01_home.png">
-<meta name="theme-color" content="#0B1026">
+<meta property="og:image" content="https://numina.bytexio.com/img/og.jpg">
+<meta name="theme-color" content="#070B16">
 <link rel="icon" href="/img/icon.png">
 <link rel="stylesheet" href="/style.css">
-<style>
-  .challenge { min-height: 80vh; display: grid; place-items: center; text-align: center; }
-  .dots { display: flex; gap: 12px; justify-content: center; margin: 22px 0 8px; }
-  .dots i { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(155,160,184,.5); }
-  .card { max-width: 440px; padding: 34px 28px; border-radius: var(--radius-lg);
-          background: rgba(21,27,56,.75); border: 1px solid rgba(255,255,255,.08); }
-  .small { font-size: 13px; color: var(--starlight-dim); margin-top: 16px; }
-</style>
 </head>
 <body>
-<div class="sky"></div><div class="stars"></div>
-<main class="wrap challenge">
-  <div class="card">
-    <div class="eyebrow" id="day">Today's Math</div>
-    <h1 style="font-size:40px;margin:10px 0 6px">Can you do<br><span class="glow">these five?</span></h1>
-    <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-    <p class="lede" style="margin:10px auto 24px">The same five problems for everyone, everywhere. A friend just played them.</p>
-    <div class="cta-row" style="justify-content:center">
-      <a class="cta" id="open" href="#">Open in Numina</a>
-      <a class="cta ghost" id="store" href="https://apps.apple.com/app/id6811761967">Get Numina</a>
-    </div>
-    <p class="small">Free to play. No accounts, no tracking.</p>
+<header class="bar"><a class="brand" href="/"><img src="/img/icon.png" alt="" width="30" height="30"> Numina</a></header>
+<main class="challenge">
+  <p class="meta" id="day">Today's Math</p>
+  <h1 id="headline">Can you do these five?</h1>
+  <div class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <p class="lede" id="lede">A friend just played them. Every player gets the same five problems, so you can see who did it better.</p>
+  <div class="actions">
+    <a class="get" id="open" href="#">Open in Numina</a>
+    <a class="ghost" id="store" href="https://testflight.apple.com/join/gk9ESn7c">Don't have it? Get Numina</a>
   </div>
+  <p class="small-print">Free to play. No accounts, no ads, no tracking.</p>
 </main>
 <script>
   // Day number from ?d=, clamped to a positive integer — never echoed as HTML.
@@ -49,6 +39,10 @@
     ? "&c=" + +c + "&s=" + +s : "";
   var deep = "numina://daily" + (d ? "?day=" + d + "&v=" + v + mark : "");
   document.getElementById("open").setAttribute("href", deep);
+  if (mark) {
+    document.getElementById("headline").textContent = "Beat " + +c + "/5 in " + +s + "s.";
+    document.getElementById("lede").textContent = "That's your friend's score. Same five problems. Your turn.";
+  }
 </script>
 </body>
 </html>

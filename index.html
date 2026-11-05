@@ -1,430 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Numina — The Daily Mental Math Ritual & Real-time Duel</title>
-  
-  <meta name="description" content="A calm, elegant mental math ritual for iPhone, iPad, Apple Watch, and Mac. 3 problems a day, real-time peer-to-peer duels, celestial sky palettes, and zero ads or tracking.">
-  <link rel="canonical" href="https://numina.bytexio.com/">
-  
-  <!-- Open Graph / Social Media -->
-  <meta property="og:title" content="Numina — The Daily Mental Math Ritual & Real-time Duel">
-  <meta property="og:description" content="Calm arithmetic in celestial skies. Play today's math, duel nearby friends or over Game Center, and track your clarity.">
-  <meta property="og:image" content="https://numina.bytexio.com/img/iphone-01_home.png">
-  <meta property="og:url" content="https://numina.bytexio.com/">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  
-  <link rel="icon" type="image/png" href="img/icon.png">
-  <link rel="apple-touch-icon" href="img/icon.png">
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Numina: the daily math puzzle</title>
+<meta name="description" content="Five math problems a day, the same five for every player. Share your dots, race your friends, and light up your own night sky. No accounts, no ads, no tracking.">
+<meta property="og:title" content="Numina: the daily math puzzle">
+<meta property="og:description" content="Five problems a day. Everyone gets the same five.">
+<meta property="og:image" content="https://numina.bytexio.com/img/og.jpg">
+<meta property="og:url" content="https://numina.bytexio.com/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#070B16">
+<link rel="icon" href="/img/icon.png">
+<link rel="apple-touch-icon" href="/img/icon.png">
+<link rel="preload" href="/fonts/nunito-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css">
 </head>
-<body>
+<body class="home">
+<canvas id="stars" aria-hidden="true"></canvas>
 
-  <!-- Floating Ambient Aurora Canvas -->
-  <canvas id="aurora-canvas"></canvas>
+<header class="bar">
+  <a class="brand" href="/"><img src="/img/icon.png" alt="" width="30" height="30"> Numina</a>
+  <nav aria-label="Main">
+    <a href="#today">Today's Math</a>
+    <a href="#duel">Duel</a>
+    <a href="#sky">Your sky</a>
+    <a href="#free">What's free</a>
+  </nav>
+  <a class="get small" data-get href="https://testflight.apple.com/join/gk9ESn7c">Get Numina</a>
+</header>
 
-  <!-- Navigation Header -->
-  <div class="nav-wrapper">
-    <nav class="nav">
-      <a href="#" class="brand">
-        <img src="img/icon.png" alt="Numina Icon" class="brand-icon">
-        <span>Numina</span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="#duel">Nearby Duel</a></li>
-        <li><a href="#themes">Celestial Skies</a></li>
-        <li><a href="#ecosystem">Ecosystem</a></li>
-        <li><a href="#pricing">Complete</a></li>
-      </ul>
-      <a href="https://apps.apple.com/app/id6811761967" class="nav-cta" target="_blank" rel="noopener">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.14.65-2.79 1.42-.58.67-.99 1.74-.95 2.8 1.07.08 2.14-.56 2.73-1.35z"/>
-        </svg>
-        Download
-      </a>
-    </nav>
+<main>
+
+<!-- The first screen is the product: today's real first problem. -->
+<section class="hero">
+  <div class="hero-play">
+    <p class="meta" id="puzzle-meta">Today's first problem</p>
+    <h1>Every Numina player got this problem today.</h1>
+
+    <form id="puzzle" class="puzzle" autocomplete="off">
+      <p class="problem" id="problem" aria-live="polite">5, 16, 12, 23, ?</p>
+      <div class="answer-row" id="answer-row">
+        <label class="visually-hidden" for="answer">Your answer</label>
+        <input id="answer" name="answer" inputmode="numeric" pattern="-?[0-9]*" maxlength="8" placeholder="Your answer">
+        <button type="submit">Check</button>
+      </div>
+      <div class="choices" id="choices" hidden></div>
+    </form>
+
+    <div class="progress">
+      <span class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <span id="feedback" role="status">Solve it here. The next four are in the app.</span>
+    </div>
+
+    <div class="after" id="after" hidden>
+      <a class="get" data-get href="https://testflight.apple.com/join/gk9ESn7c">Play the other four</a>
+    </div>
   </div>
 
-  <main>
-    <!-- HERO SECTION -->
-    <section class="hero container">
-      <div class="hero-grid">
-        <div class="hero-content">
-          <div class="hero-badge">
-            <span class="hero-badge-dot"></span>
-            <span>Version 2.0 Now Available</span>
-          </div>
-          <h1 class="hero-title">
-            The daily math ritual for <span class="gradient-text">focused minds</span>.
-          </h1>
-          <p class="hero-subtitle">
-            Three crisp problems a day. Seamless real-time duels with nearby friends or online. Unwind in celestial aurora skies without ads, subscriptions, or noisy dopamine traps.
-          </p>
-          <div class="hero-actions">
-            <a href="https://apps.apple.com/app/id6811761967" class="btn-primary" target="_blank" rel="noopener">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.14.65-2.79 1.42-.58.67-.99 1.74-.95 2.8 1.07.08 2.14-.56 2.73-1.35z"/>
-              </svg>
-              Get on App Store
-            </a>
-            <a href="#duel" class="btn-secondary">
-              Explore Nearby Duel
-            </a>
-          </div>
-          <div class="hero-trust">
-            <div class="trust-item">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-              <span>100% Private</span>
-            </div>
-            <div class="trust-item">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-              <span>Zero Ads & Tracking</span>
-            </div>
-            <div class="trust-item">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-              <span>Single $4.99 Unlock</span>
-            </div>
-          </div>
-        </div>
+  <figure class="phone hero-phone">
+    <img src="/img/app/home.webp" width="660" height="1434" alt="Numina's Home screen. Today's Math is on top, with five empty dots and a streak of twelve days." fetchpriority="high">
+  </figure>
+</section>
 
-        <!-- PLAYABLE HERO PUZZLE -->
-        <div class="hero-visual">
-          <div class="playable-device-wrapper">
-            <div class="playable-phone">
-              <div class="phone-screen">
-                <div class="phone-top-bar">
-                  <span>9:41</span>
-                  <div class="phone-dynamic-island"></div>
-                  <span>5G 100%</span>
-                </div>
-                
-                <div class="puzzle-header">
-                  <div class="puzzle-day-tag">Day 244 Ritual</div>
-                  <div class="puzzle-streak-pill">
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    <span>14 Day Streak</span>
-                  </div>
-                </div>
+<p class="ticker">New five in <strong id="countdown">a few hours</strong>. Free on iPhone, iPad and Apple Watch.</p>
 
-                <div class="puzzle-main">
-                  <div class="target-label">TARGET VALUE</div>
-                  <div class="target-number" id="puzzle-target">42</div>
-                  <div class="target-equation" id="puzzle-eq">6 × <span class="placeholder">?</span> = 42</div>
-                  
-                  <div class="puzzle-choices" id="puzzle-choices">
-                    <!-- Populated dynamically by app.js -->
-                  </div>
+<section class="split" id="today">
+  <div class="copy">
+    <h2>Share the dots. Keep the answers.</h2>
+    <p>Five problems, about two minutes, and a row of dots that says exactly how it went. Your friends can read it without seeing a single answer.</p>
+    <p class="share-line" aria-label="Example result: four of five right on day 309"><span>●●●○●</span> Day 309</p>
+    <p>Your link drops them into the same five, with your score to beat. Your first try is the one that counts. Replays are practice.</p>
+  </div>
+  <div class="pair">
+    <figure class="phone"><img loading="lazy" src="/img/app/daily.webp" width="660" height="1434" alt="A Today's Math problem: 5, 16, 12, 23, question mark, with a number keypad."></figure>
+    <figure class="phone drop"><img loading="lazy" src="/img/app/results.webp" width="660" height="1434" alt="A results screen showing five of five, with a Share button."></figure>
+  </div>
+</section>
 
-                  <div class="puzzle-feedback" id="puzzle-feedback">Tap the missing number</div>
-                  
-                  <div class="puzzle-dots">
-                    <span class="puzzle-dot active"></span>
-                    <span class="puzzle-dot"></span>
-                    <span class="puzzle-dot"></span>
-                  </div>
-                </div>
+<section class="duel" id="duel">
+  <div class="duel-head">
+    <h2>Ten problems. Ten stars. Your friends want them too.</h2>
+    <p>Everyone in the room gets the same problem at the same moment. The first right answer takes the star, and a wrong one locks you out for a second. When two phones land together, Numina calls the photo finish.</p>
+  </div>
+  <div class="duel-body">
+    <figure class="phone"><img loading="lazy" src="/img/app/race.webp" width="660" height="1434" alt="A three-player race mid-problem, showing a Photo finish message."></figure>
+    <figure class="phone"><img loading="lazy" src="/img/app/podium.webp" width="660" height="1434" alt="The results podium with gold, silver and bronze medals, and earned badges."></figure>
+    <ul class="facts-list">
+      <li><b>Up to six players</b> Race across the table with no account, or invite friends through Game Center.</li>
+      <li><b>Three ways to race</b> Ten problems, first to five, or Equalize, which gives a younger player a head start so the race stays close.</li>
+      <li><b>Seventeen badges</b> Take the very first star, or the last one, and it goes in your collection.</li>
+      <li><b>One host is enough</b> Whoever joins plays free.</li>
+    </ul>
+  </div>
+</section>
 
-                <div style="text-align: center; font-size: 0.75rem; color: var(--text-tertiary); padding-top: 12px;">
-                  Interactive Preview &bull; Click to solve
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+<section class="split flip" id="sky">
+  <figure class="phone"><img loading="lazy" src="/img/app/constellations.webp" width="660" height="1434" alt="Seven constellations, one for each skill: addition, times tables, fractions and percent, patterns, algebra, logic and memory."></figure>
+  <div class="copy">
+    <h2>Your sky remembers every answer.</h2>
+    <p>Every problem you solve kindles a star. Seven constellations follow seven skills, from times tables to logic, and each one grows at your pace.</p>
+    <p>Daily Tune watches what you find easy and brings you new kinds of problem instead of bigger numbers. Miss one and Numina shows you the right answer and how to get there.</p>
+    <ul class="plain">
+      <li><b>Comet Run</b> The same practice against the clock, with your time on the Lock Screen.</li>
+      <li><b>Deep Sky</b> Talk your way through riddles and story problems with a guide that runs on your device.</li>
+      <li><b>Deep Signal</b> One special puzzle each night, for double reward.</li>
+    </ul>
+  </div>
+</section>
 
-    <!-- NEARBY & ONLINE DUEL SECTION -->
-    <section id="duel" class="duel-section container">
-      <div class="section-head">
-        <span class="section-badge">Head-to-Head</span>
-        <h2 class="section-title">Nearby & Online Duel. Instant mental sprints.</h2>
-        <p class="section-desc">
-          Race a friend sitting across the table with peer-to-peer Multipeer Connectivity, or challenge rivals worldwide over Game Center. Ten identical problems. One star per race.
-        </p>
-      </div>
+<section class="everywhere">
+  <h2>Math before you've unlocked your phone.</h2>
+  <div class="spots">
+    <figure>
+      <img loading="lazy" src="/img/widget.png" width="800" height="490" alt="A Lock Screen widget asking 65 plus what equals 105, with three answers to tap.">
+      <figcaption><b>Lock Screen</b> Tap your answer right on the widget.</figcaption>
+    </figure>
+    <figure class="watch">
+      <img loading="lazy" src="/img/watch.png" width="420" height="511" alt="Apple Watch showing 11 minus 3 with four answers.">
+      <figcaption><b>Apple Watch</b> A quick climb on your wrist.</figcaption>
+    </figure>
+    <figure class="ipad-note">
+      <p class="big">6</p>
+      <figcaption><b>Languages</b> English, Spanish, French, German, Japanese and Simplified Chinese. VoiceOver, Dynamic Type and Reduce Motion throughout.</figcaption>
+    </figure>
+  </div>
+</section>
 
-      <div class="duel-arena">
-        <canvas id="duel-beam-canvas"></canvas>
-        <div class="duel-phones-grid">
-          <div class="duel-phone-card">
-            <img src="img/duel-race.png" alt="Duel Race in Action">
-            <div class="duel-player-pill">
-              <span>Host &bull; Elena (You)</span>
-            </div>
-          </div>
-
-          <div class="duel-vs-badge">
-            <span>VS</span>
-          </div>
-
-          <div class="duel-phone-card">
-            <img src="img/duel-results.png" alt="Duel Race Results">
-            <div class="duel-player-pill">
-              <span>Challenger &bull; Marcus</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="duel-features-grid">
-        <div class="duel-feat">
-          <span class="duel-feat-icon">⚡️</span>
-          <h3>Zero-Account Pairing</h3>
-          <p>
-            No accounts or usernames required. Play over offline Wi-Fi/Bluetooth with Apple Multipeer, or pair instantly via Game Center even when sharing an Apple ID in the household.
-          </p>
-        </div>
-        <div class="duel-feat">
-          <span class="duel-feat-icon">🎯</span>
-          <h3>Fair Photo-Finish Referee</h3>
-          <p>
-            The host device syncs race countdowns down to the millisecond. Network jitter compensation prevents ping from deciding close finishes.
-          </p>
-        </div>
-        <div class="duel-feat">
-          <span class="duel-feat-icon">🔒</span>
-          <h3>1-Second Penalty Lockout</h3>
-          <p>
-            No blind guessing. A wrong answer triggers an amber screen vibration and locks your input for 1 second, rewarding deliberate accuracy.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- CELESTIAL SKY THEME MORPHER SECTION -->
-    <section id="themes" class="themes-section container">
-      <div class="section-head">
-        <span class="section-badge">Visual Serenity</span>
-        <h2 class="section-title">Celestial Skies. Five calming palettes.</h2>
-        <p class="section-desc">
-          Shift the mood of your ritual. Tap any theme below to preview how Numina transforms across dark nights, lavender twilight, and linen mornings.
-        </p>
-      </div>
-
-      <div class="theme-switcher-bar">
-        <button class="theme-pill active" data-theme-key="aurora">
-          <span class="theme-pill-dot dot-aurora"></span>
-          Aurora Sky
-        </button>
-        <button class="theme-pill" data-theme-key="ember">
-          <span class="theme-pill-dot dot-ember"></span>
-          Ember Dusk
-        </button>
-        <button class="theme-pill" data-theme-key="violet">
-          <span class="theme-pill-dot dot-violet"></span>
-          Deep Violet
-        </button>
-        <button class="theme-pill" data-theme-key="starlight">
-          <span class="theme-pill-dot dot-starlight"></span>
-          Starlight
-        </button>
-        <button class="theme-pill" data-theme-key="daylight">
-          <span class="theme-pill-dot dot-daylight"></span>
-          Daylight Linen
-        </button>
-      </div>
-
-      <div class="theme-showcase-card">
-        <div class="theme-showcase-img">
-          <img id="theme-preview-img" src="img/skies.png" alt="Celestial Themes Preview" class="theme-preview-img">
-        </div>
-        <div class="theme-showcase-content">
-          <h3 class="theme-meta-title" id="theme-name">Aurora Sky</h3>
-          <p class="theme-meta-desc" id="theme-desc">
-            A glowing teal veil over an Arctic night sky. The signature Numina aesthetic designed to soothe the eyes and hone attention.
-          </p>
-          <div class="theme-color-palette">
-            <div class="swatch" style="background: var(--bg-space);"></div>
-            <div class="swatch" style="background: var(--bg-card-solid);"></div>
-            <div class="swatch" style="background: var(--accent-primary);"></div>
-            <div class="swatch" style="background: var(--accent-secondary);"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIDEO SHOWCASE -->
-    <section class="video-section container">
-      <div class="section-head">
-        <span class="section-badge">Design in Motion</span>
-        <h2 class="section-title">Pure tactile pleasure in every solve.</h2>
-        <p class="section-desc">
-          Custom haptic snaps, fluid spring physics, and acoustic sound chimes crafted for serene daily focus.
-        </p>
-      </div>
-      <div class="video-container">
-        <video autoplay muted loop playsinline poster="img/iphone-01_home.png">
-          <source src="img/numina-preview.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </section>
-
-    <!-- ECOSYSTEM SECTION -->
-    <section id="ecosystem" class="ecosystem-section container">
-      <div class="section-head">
-        <span class="section-badge">Every Screen</span>
-        <h2 class="section-title">Built natively for the Apple ecosystem.</h2>
-        <p class="section-desc">
-          From your wrist to your foldable iPad duo, Numina lives wherever your thoughts flow.
-        </p>
-      </div>
-
-      <div class="ecosystem-grid">
-        <div class="ecosystem-card">
-          <div>
-            <h3>Lock Screen Widgets</h3>
-            <p>Solve today's math or track your streak directly from your iPhone lock screen with iOS 17 interactive widgets.</p>
-          </div>
-          <div class="ecosystem-card-img-wrap">
-            <img src="img/widget.png" alt="Lock Screen Widget">
-          </div>
-        </div>
-
-        <div class="ecosystem-card">
-          <div>
-            <h3>Apple Watch Quick Solves</h3>
-            <p>Quick mental resets on your commute with standalone watchOS complications and Digital Crown navigation.</p>
-          </div>
-          <div class="ecosystem-card-img-wrap">
-            <img src="img/watch.png" alt="Apple Watch App">
-          </div>
-        </div>
-
-        <div class="ecosystem-card">
-          <div>
-            <h3>iPad & Foldable Duo</h3>
-            <p>Spacious multi-column layouts crafted for split view, stage manager, and folding dual-screen stances.</p>
-          </div>
-          <div class="ecosystem-card-img-wrap">
-            <img src="img/ipad-home.png" alt="iPad Pro Experience">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PRICING SECTION -->
-    <section id="pricing" class="pricing-section container">
-      <div class="pricing-card-wrap">
-        <div class="pricing-card">
-          <div class="pricing-badge">Honest Software</div>
-          <div class="pricing-header">
-            <div class="pricing-price">$4.99 <span>one-time unlock</span></div>
-            <p class="pricing-sub">No recurring subscriptions. No gems. No paywalls on your habit.</p>
-          </div>
-
-          <div class="pricing-grid">
-            <div>
-              <h4 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--accent-primary);">Free Forever</h4>
-              <ul class="pricing-list">
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  Daily 3-problem ritual
-                </li>
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  Full streak & accuracy tracking
-                </li>
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  Join unlimited duels as a guest
-                </li>
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  Lock Screen & Watch apps
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 style="font-size: 1.1rem; margin-bottom: 16px; color: var(--accent-primary);">Numina Complete ($4.99)</h4>
-              <ul class="pricing-list">
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  Host unlimited Nearby & Online Duels
-                </li>
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  All 5 Celestial Sky themes
-                </li>
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  Deep Sky training mode (speed sprints)
-                </li>
-                <li>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                  Lifetime family sharing included
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="pricing-cta">
-            <a href="https://apps.apple.com/app/id6811761967" class="btn-primary" target="_blank" rel="noopener">
-              Download on the App Store
-            </a>
-            <p class="pricing-guarantee">Apple App Store verified &bull; Pay once, own forever</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PRIVACY FORTRESS -->
-    <section class="privacy-section container">
-      <div class="privacy-card">
-        <div class="privacy-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-          </svg>
-        </div>
-        <div class="privacy-content">
-          <h3>Your mind is yours alone.</h3>
-          <p>
-            Numina has no third-party analytics, no tracking SDKs, and requires no account. Your solve history and stats stay exclusively on your device and private iCloud keychain.
-          </p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container footer-grid">
-      <div class="footer-brand">
-        <a href="#" class="brand">
-          <img src="img/icon.png" alt="Numina Icon" class="brand-icon">
-          <span>Numina</span>
-        </a>
-        <p>A calm mental math ritual and real-time duel crafted for iOS, iPadOS, watchOS, and macOS.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Navigation</h4>
-        <ul class="footer-links">
-          <li><a href="#duel">Nearby Duel</a></li>
-          <li><a href="#themes">Celestial Skies</a></li>
-          <li><a href="#ecosystem">Apple Ecosystem</a></li>
-          <li><a href="#pricing">Numina Complete</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Legal & Press</h4>
-        <ul class="footer-links">
-          <li><a href="privacy.html">Privacy Policy</a></li>
-          <li><a href="terms.html">Terms of Use</a></li>
-          <li><a href="press/">Press Kit</a></li>
-          <li><a href="mailto:support@bytexio.com">Contact Support</a></li>
-        </ul>
-      </div>
+<section class="skies" id="skies">
+  <div class="copy">
+    <h2>Pick your sky.</h2>
+    <p>Tap one. This page repaints the way the app does.</p>
+    <div class="sky-picker" role="group" aria-label="Choose a sky">
+      <button type="button" data-sky="aurora" aria-pressed="true"><i></i>Aurora</button>
+      <button type="button" data-sky="emberDusk" aria-pressed="false"><i></i>Ember Dusk</button>
+      <button type="button" data-sky="deepViolet" aria-pressed="false"><i></i>Deep Violet</button>
+      <button type="button" data-sky="starlightMono" aria-pressed="false"><i></i>Starlight</button>
+      <button type="button" data-sky="daylight" aria-pressed="false"><i></i>Daylight</button>
     </div>
-    <div class="container footer-bottom">
-      <span>&copy; 2026 Bytexio. All rights reserved.</span>
-      <span>Designed with calm precision.</span>
-    </div>
-  </footer>
+  </div>
+  <figure class="phone"><img id="sky-shot" loading="lazy" src="/img/app/home-played.webp" width="660" height="1434" alt="Numina's Home screen in the Aurora sky."></figure>
+</section>
 
-  <script src="app.js"></script>
+<section class="free" id="free">
+  <h2>Almost all of it is free.</h2>
+  <div class="columns">
+    <div>
+      <h3>Free, with nothing to unlock</h3>
+      <ul>
+        <li>Today's Math, every day</li>
+        <li>Daily Tune, Comet Run and Meteor Dash</li>
+        <li>Deep Sky and Deep Signal</li>
+        <li>Joining any duel</li>
+        <li>Lock Screen math and Apple Watch</li>
+        <li>Your stats, your streak and iCloud sync</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Numina Pro, for going further</h3>
+      <ul>
+        <li>The full eight-lesson fluency course. The first lesson is free.</li>
+        <li>Custom tunes: choose the length and the skills</li>
+        <li>Four more skies</li>
+        <li>Hosting your own duels</li>
+      </ul>
+      <p class="note">You'll see the plans and prices in the app before you pay for anything.</p>
+    </div>
+  </div>
+</section>
+
+<section class="promise">
+  <p>No accounts. No ads. No tracking.</p>
+  <p class="sub">Your progress lives on your device and, if you choose, in your own iCloud. It never touches a server of ours. <a href="/privacy.html">Read the privacy policy</a>.</p>
+</section>
+
+<section class="close">
+  <h2>Tomorrow's five land at midnight.</h2>
+  <p>Be there first.</p>
+  <a class="get" data-get href="https://testflight.apple.com/join/gk9ESn7c">Get Numina</a>
+  <p class="fine" data-get-note>Free beta on TestFlight now. App Store launch is coming. Needs iOS 18 or later.</p>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p>Numina is a game for practice and fun. It is not a medical or therapeutic product.</p>
+  <nav aria-label="Footer">
+    <a href="/press/">Press</a>
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+    <a href="mailto:support@bytexio.com">Support</a>
+  </nav>
+  <p>© 2026 ByteXio LLC</p>
+</footer>
+
+<script src="/app.js" defer></script>
 </body>
 </html>
