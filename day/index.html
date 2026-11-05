@@ -42,7 +42,12 @@
   var v = parseInt(q.get("v") || "1", 10) || 1;
   if (!isFinite(d) || d < 1 || d > 100000) d = null;
   if (d) document.getElementById("day").textContent = "Day " + d + " · Today's Math";
-  var deep = "numina://daily" + (d ? "?day=" + d + "&v=" + v : "");
+  // A friend's score to beat, kept only if it is one the app would accept.
+  var whole = /^\d+$/;
+  var c = q.get("c"), s = q.get("s");
+  var mark = (whole.test(c) && whole.test(s) && +c <= 5 && +s >= 1 && +s <= 3600)
+    ? "&c=" + +c + "&s=" + +s : "";
+  var deep = "numina://daily" + (d ? "?day=" + d + "&v=" + v + mark : "");
   document.getElementById("open").setAttribute("href", deep);
 </script>
 </body>
